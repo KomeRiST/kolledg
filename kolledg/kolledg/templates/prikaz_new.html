@@ -1,0 +1,137 @@
+{% extends "kolledg/base.html" %}
+{% load staticfiles %}
+{% load bootstrap_tags %}
+{% block title %}Добавление приказа{% endblock title %}
+{% block body %}
+<script type="text/javascript">
+$(document).ready(function(){
+
+    function updateElementIndex(el, prefix, ndx) {
+        var id_regex = new RegExp('(' + prefix + '-\\d+-)');
+        var replacement = prefix + '-' + ndx + '-';
+        if ($(el).attr("for"))
+            $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+        if (el.id)
+            el.id = el.id.replace(id_regex, replacement);
+        if (el.name)
+            el.name = el.name.replace(id_regex, replacement);
+        e = $(el).closest('.item').children(1);
+        $(e).eq(0).html(ndx+1);
+    }
+
+    function deleteForm(btn, prefix) {
+        var formCount = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (formCount > 1) {
+            // Delete the item/form
+            $(btn).parents('.item').remove();
+            var forms = $('.item'); // Get all the forms
+            // Update the total number of forms (1 less than before)
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+            var i = 0;
+            // Go through the forms and set their indices, names and IDs
+            for (formCount = forms.length; i < formCount; i++) {
+                $(forms.get(i)).children().children().each(function () {
+                    if ($(this).attr('type') == 'text')
+                        updateElementIndex(this, prefix, i);
+                });
+            }
+        } // End if
+        else {
+            alert("You have to enter at least one todo item!");
+        }
+        return false;
+    }
+
+    function addForm(btn, prefix) {
+        var formCount = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val()); // Количество строк
+        // You can only submit a maximum of 25 todo items
+        if (formCount < 25) {
+            // Clone a form (without event handlers) from the first form
+            var row = $(".item:first").clone(false).get(0);
+            // Insert it after the last form
+            $(row).removeAttr('id').insertAfter(".item:last");
+            $(".item:last > td:first").html(formCount + 1)
+
+            // Remove the bits we don't want in the new row/form
+            // e.g. error messages
+            $(".errorlist", row).remove();
+            $(row).children().removeClass("error");
+
+            // Relabel or rename all the relevant bits
+            $(row).children().children().each(function () {
+                updateElementIndex(this, prefix, formCount);
+                $(this).val("");
+            });
+
+            // Add an event handler for the delete item/form link
+            $(row).find(".delete").click(function () {
+                return deleteForm(this, prefix);
+            });
+            // Update the total form count
+            $("#id_" + prefix + "-TOTAL_FORMS").val(formCount + 1);
+        } // End if
+        else {
+            alert("Sorry, you can only enter a maximum of ten items.");
+        }
+        return false;
+    }
+    // Register the click event handlers
+    $("#add").click(function () {
+        return addForm(this, "form");
+    });
+
+    $(".delete").click(function () {
+        return deleteForm(this, "form");
+    });
+
+});
+</script>
+<div>
+    <form action="" method="POST">
+        {{ todo_item_formset.management_form }}
+        <div class="section">
+            <fieldset style="width: 350px; margin: auto;">
+                <legend>Номер и дата приказа</legend>
+                {{todo_list_form|as_bootstrap}}
+            </fieldset>
+        </div>
+        <h2>Зачисляемые студенты</h2>
+        <div class="">
+            <table class="tftable">
+                <tr class="">
+                    <th>#</th>
+                    <th>Группа</th>
+                    <th>Фамилия</th>
+                    <th>Имя</th>
+                    <th>Отчество</th>
+                    <th>Дата рождения</th>
+                    <th>Адресс проживания</th>
+                    <th>Ред.</th>
+                </tr>
+                {% for form in todo_item_formset.forms %}
+                <tr class="item">
+                    <td>1</td>
+                    <td>{{form.Group}}</td>
+                    <td>{{form.Fam}}</td>
+                    <td>{{form.name}}</td>
+                    <td>{{form.otch}}</td>
+                    <td>{{form.birsday}}</td>
+                    <td>{{form.adress}}</td>
+                    <td>
+                        <p style="text-align: center">
+                            <a class="delete" href="#">
+                                <img height="16" src="{% static 'icons/minus_red.png' %}"/>
+                            </a>
+                        </p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <p><a id="add" href="#" class="btn btn-primary">Добавить студента</a></p>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+        </div>
+    </form>
+</div>
+{% endblock body %}

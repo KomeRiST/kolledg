@@ -1,0 +1,164 @@
+{% extends "kolledg/base.html" %}
+{% load staticfiles %}
+{% block title %}Ведомости{% endblock title %}
+{% block styles %}
+<link href="{% static 'css/knopka.css' %}" rel="stylesheet">
+<link href="{% static 'css/modal.css' %}" rel="stylesheet">
+<style>
+html {
+    overflow-y: hidden;
+}
+#trest {
+    height: 520px;
+}
+#trest-body {
+    height: 100%;
+    overflow-y: auto;
+}
+.thiscontent {
+    padding: 20px;
+    height: 520px;
+}
+.thiscontent-header h1 {
+    font-size: 24px;
+    padding: 0px;
+    padding-bottom: 10px;
+    margin: 0px;
+    text-align: center;
+}
+.thiscontent-left {
+    width: 300px;
+    float: left;
+}
+.thiscontent-left-item {
+    padding-left: 20px;
+    line-height: 30px;
+}
+
+.thiscontent-left-item:hover {
+    <!--border:  1px solid var(&#45;&#45;background-header);-->
+    background-color: var(--background-hover);
+    line-height: 30px;
+    font-weight: bold;
+}
+
+.thiscontent-left-item-new {
+    margin: auto;
+    width: 50%;
+    text-align: center;
+    color:  var(--background-header-text);
+    border-radius: 3px;
+}
+
+.thiscontent-left-item-new:hover {
+    border: 1px solid var(--background-hover);
+    color: var(--hover-text);
+    border-radius: 3px;
+}
+.thiscontent-body {
+    float: left;
+    width: 100%;
+    padding: 10px;
+    height: 90%;
+}
+nav#navigation {
+    margin: auto;
+    display: inline-block;
+    z-index: 1;
+}
+nav#navigation ul {
+  list-style: none;
+  padding: 0px;
+}
+nav#navigation ul li {
+    float: left;
+    text-align: center;
+    width: 250px;
+    height: 60px;
+}
+
+nav#navigation ul li.active {
+  background: var(--background-header);
+}
+nav#navigation ul li.dropdown:hover ul[class*="dropdown-"] {
+  visibility: visible;
+  opacity: 1;
+  -webkit-transition: 150ms ease all;
+  -moz-transition: 150ms ease all;
+  transition: 150ms ease all;
+}
+nav#navigation ul li a {
+  display: block;
+  width: 100%;
+  line-height: 60px;
+  padding: 0 15px;
+  text-decoration: none;
+  color: white;
+  -webkit-transition: 150ms ease all;
+  -moz-transition: 150ms ease all;
+  transition: 150ms ease all;
+}
+nav#navigation ul li a:hover {
+    color: var(--text-header);
+}
+nav#navigation ul li a i,
+nav#navigation ul li a p {
+  display: inline-block;
+}
+nav#navigation ul li a i {
+  position: absolute;
+  font-size: 1.3em;
+}
+nav#navigation ul li ul[class*='dropdown-'] {
+    position: absolute;
+    display: block;
+    margin: 0px 0px 0px 0px;
+    visibility: hidden;
+    opacity: 0;
+    z-index: 1;
+    -webkit-transition: 150ms ease all;
+    -moz-transition: 150ms ease all;
+    transition: 150ms ease all;
+}
+nav#navigation ul li ul[class*="dropdown-"] li {
+    width: 238px;
+    height: 60px;
+}
+
+#wrapper {
+  margin: 0 0 0 225px;
+  padding: 15px;
+  color: #126CA1;
+}
+
+</style>
+{% endblock styles %}
+{% block scripts %}
+<script src="{% static 'js/ajax.js' %}"></script>
+{% endblock scripts %}
+{% block body %}
+<div class="thiscontent">
+    <div class="thiscontent-header">
+        <h1>Список ведомостей по дисциплине:</h1>
+        <h1>{{disc}}</h1>
+    </div>
+    <div class="thiscontent-body">
+        <div class="thiscontent-left  back-image">
+            <div class="spacer-20"></div>
+            <div class="thiscontent-left-item-new">
+                <a href="/prikaz_new/" class="btn btn-primary">Добавить ведомость</a>
+            </div>
+            <div class="spacer-20"></div>
+            {% for ved in vedomosty %}
+            <div onclick="ReadFile('/studs_ved/studs_ved/{{ved.pk}}/', 'trest-body');" class="thiscontent-left-item">
+                Ведомость №{{ved.nomer}} от {{ved.data_zacheta}}
+                <!--<div>Группа: {{dk.id_group__shortname}}</div>-->
+            </div>
+            <hr/>
+            {% endfor %}
+        </div>
+        <div id="trest-body" class=" back-image"></div>
+    </div>
+
+</div>
+{% endblock body %}

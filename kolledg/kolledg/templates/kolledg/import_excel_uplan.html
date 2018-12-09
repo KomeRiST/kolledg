@@ -1,0 +1,36 @@
+{% extends "kolledg/base.html" %}
+{% load staticfiles %}
+{% load bootstrap_tags %}
+{% block title %}Импорт{% endblock title %}
+{% block scripts %}
+{% endblock scripts %}
+{% block body %}
+<!-- Список учебных групп -->
+<section>
+    <div class="row text-center justify-content-center">
+        <h1>Импорт учебного плана для группы<br/>"{{group}}"</h1>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-4 text-center  back-image">
+            <div class="">
+                <h5>Шаг 1: Загрузка файла.</h5>
+                <img width="150" src="{% static 'icons/excel-table-gray.png' %}" alt="table-icon">
+                <form method="post" enctype="multipart/form-data">
+                    {{form|as_bootstrap}}
+                    <button type="submit" class="btn btn-primary">Отправить</button>
+                </form>
+            </div>
+        </div>
+        <div class="col-4 text-center">
+            <div class=" back-image">
+                <h5>Шаг 2: Выбор листа книги</h5>
+                <img width="150" src="{% static 'icons/sheets-gray.png' %}" alt="table-icon">
+                <div class="form-group" id="trest">
+                    <label class="control-label required-field">Для начала выполните "Шаг 1"</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="spacer-50"></div>
+</section>
+{% endblock body %}

@@ -1,0 +1,26 @@
+{% extends "kolledg/base.html" %}
+{% load staticfiles %}
+{% load bootstrap_tags %}
+{% block title %}Изменение бегунка{% endblock title %}
+{% block body %}
+{% if user.is_authenticated %}
+<form action="" method="POST">
+    <fieldset style="width: 500px; margin: auto;">
+        <div class="section  text-center back-image" style="margin: auto;">
+            <legend>Принятие бегунка</legend>
+            <p>Выданного на студента: <br/>{{begunok.id_stud}}</p>
+            <p>На дисциплину: <br/>{{begunok.id_disc_nagruz}}</p>
+            <p>По приказу: <br/>{{begunok.id_prik}}</p>
+            <div style="padding: 15px; width: 250px; margin: auto;">
+                {{form|as_bootstrap}}
+            </div>
+            <div class="text-center" style="padding-bottom: 15px;">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+            </div>
+        </div>
+    </fieldset>
+</form>
+{% else %}
+<h1>У вас не достаточн прав!<br/>Пожалуйста авторизуйтесь.</h1>
+{% endif %}
+{% endblock body %}

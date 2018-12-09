@@ -1,0 +1,30 @@
+{% extends "kolledg/base.html" %}
+{% load staticfiles %}
+{% block title %}Главная{% endblock title %}
+
+{% block body %}
+<h1>{{prepod}}</h1>
+{% if prepod.kurator != False %}
+<h3>Куратор группы: <a href="/group/{{prepod.kurator.id}}/">{{prepod.kurator}}</a></h3>
+{% else %}
+<h3>Не является куратором группы.</h3>
+{% endif %}
+<div class="row">
+    <div class=" back-image col-6">
+        <h5 class="headergroupitem">Аттестующий препод в ведомостях</h5>
+        {% for ved in prepod.vedomosti %}
+            <div class=" back-image">{{ved.id_ved}}</div>
+        {% endfor %}
+    </div>
+
+    <div class=" back-image col-6">
+        <h5 class="headergroupitem">Аттестующий препод в бегунках</h5>
+        {% for beg in prepod.begunki %}
+            <div class="">{{beg.id_beg}} |
+                <a href="/group/{{beg.id_beg.id_disc_nagruz.id_disc.id_group.id}}">Группа</a>
+                <a href="/group/{{beg.id_beg.id_disc_nagruz.id_disc.id_group.id}}">Группа</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock body %}

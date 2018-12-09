@@ -1,0 +1,44 @@
+{% extends "kolledg/base.html" %}
+{% load staticfiles %}
+{% load bootstrap_tags %}
+{% block title %}Импорт{% endblock title %}
+{% block scripts %}
+{% endblock scripts %}
+{% block body %}
+<!-- Список учебных групп -->
+<section>
+    <div class="row text-center justify-content-center">
+        <h1>Импорт учебного плана для группы<br/>"{{group}}"</h1>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-4 text-center">
+            <div class="shadow back-image">
+                <h5>Шаг 1: Загрузка файла.</h5>
+                <img width="150" src="{% static 'icons/ok_green_big.png' %}" alt="ok-icon-big">
+                <div class="form-control"><img src="{% static 'icons/ok_green.png' %}" alt="ok-icon">Файл загружен^
+                    {{file_name}}
+                </div>
+            </div>
+        </div>
+        <div class="col-4 text-center">
+            <div class="shadow back-image">
+                <h5>Шаг 2: Выбор листа книги</h5>
+                <img width="150" src="{% static 'icons/sheets-gray.png' %}" alt="table-icon">
+                <div class="form-group">
+                    <label class="control-label required-field">Выберите лист с учебным планом.</label>
+                    <select form="sheet" class="form-control" name="select_sheet">
+                        {% for sh in sh_names %}
+                        <option value="{{sh}}">{{sh}}</option>
+                        {% endfor %}
+                    </select>
+                    <form id="sheet" method="post">
+                        <input type="hidden" name="up_file_name" value="{{file_name}}">
+                        <button type="submit" class="btn btn-primary">Отправить</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="spacer-50"></div>
+</section>
+{% endblock body %}

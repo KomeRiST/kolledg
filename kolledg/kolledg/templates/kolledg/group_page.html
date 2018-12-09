@@ -1,0 +1,356 @@
+{% extends "kolledg/base.html" %}
+{% load staticfiles %}
+{% load bootstrap_tags %}
+{% block title%}{{group.shortname}}{% endblock title%}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/expander.css' %}">
+<style>
+    #view-source {
+      position: fixed;
+      display: block;
+      right: 0;
+      bottom: 0;
+      margin-right: 40px;
+      margin-bottom: 40px;
+      z-index: 900;
+    }
+</style>
+<link rel="stylesheet" href="{% static 'css/style-modal-window.css' %}">
+{% endblock styles %}
+
+{% block scripts %}
+<script src="{% static 'js/ajax.js' %}"></script>
+<script language="JavaScript" src="{% static 'js/jquery.columnfilters.js' %}"></script>
+<script language="JavaScript">
+    $(document).ready(function() {
+        var discipliny = {{discipliny|safe}}; //создадим объект массива дисциплин группы
+        var discnagryz = {{discnagryz|safe}}; //создадим объект массива нагрузки дисциплин
+
+        var table = []; // Обьединённая таблица
+        for (x in discipliny)
+        {
+            let item_table_nagryz = {}; // Часть строки таблицы
+            for (i in discnagryz)
+            {
+                if (discnagryz[i].fields.id_disc == discipliny[x].pk)
+                {
+                    var item = discnagryz[i];
+                    item_table_nagryz[item.fields.semestr] = item;
+                }
+            };
+            var item_table_disc = discipliny[x];
+            item_table_disc.nagryzka = item_table_nagryz;
+
+            table.push(item_table_disc);
+        }
+        // $("#hhh").html(returnObj[1].fields.forma_obucheniya); // доступ к полям объекта
+        for (item in table) {
+            let new_el = document.createElement("tr");
+            let text_1 = '<td t="disc" r="'+table[item].pk+'" c="disc_index">'+table[item].fields.disc_index+'</td>'+
+                         '<td t="disc" r="'+table[item].pk+'" c="disciplina">'+table[item].fields.disciplina+'</td>'
+            for (var c=1; c<={{group.max_sem}}; c++) {
+            if (c == {{group.tek_sem}}) {style='style="background-color: var(--background-header-text); color: var(--background-header);"'} else {style=''}
+            if (table[item].nagryzka[c] != null) {text_1 += '<td '+style+' t="nagr" r="'+table[item].nagryzka[c].pk+'" c="forma_attestacii-'+c+'"><a href="/vedomosty/'+table[item].nagryzka[c].pk+'/">'+table[item].nagryzka[c].fields.forma_attestacii+'</a></td>'}
+                else {text_1 += '<td '+style +'t="nagr" r="" c="forma_attestacii-'+c+'"></td>'}
+            }
+            let text_2 = '<td t="disc" r="'+table[item].pk+'" c="max_nagruzka">'+table[item].fields.max_nagruzka+'</td>'+
+                            '<td t="disc" r="'+table[item].pk+'" c="samostoyatelnaya_raboa">'+table[item].fields.samostoyatelnaya_raboa+'</td>' +
+                            '<td t="disc" r="'+table[item].pk+'" c="vsego_zanyatii">'+table[item].fields.vsego_zanyatii+'</td>' +
+                            '<td t="disc" r="'+table[item].pk+'" c="lekcii">'+table[item].fields.lekcii+'</td>' +
+                            '<td t="disc" r="'+table[item].pk+'" c="praktic">'+table[item].fields.praktic+'</td>' +
+                            '<td t="disc" r="'+table[item].pk+'" c="kurs_podgotovka">'+table[item].fields.kurs_podgotovka+'</td>'
+            let text_3 = "";
+            for (var c=1; c<={{group.max_sem}}; c++) {
+            if (c == {{group.tek_sem}}) {style='style="background-color: var(--background-header-text); color: var(--background-header);"'} else {style=''}
+            if (table[item].nagryzka[c] != null) {text_3 += '<td '+style+' t="nagr" r="'+table[item].nagryzka[c].pk+'" c="chasov-'+c+'">'+table[item].nagryzka[c].fields.chasov+'</td>'}
+                else {text_3 += '<td '+style+' t="nagr" r="" c="chasov-'+c+'"></td>'}
+            }
+            text = text_1+text_2+text_3;
+            $("#insert").append(new_el);
+            $(new_el).html(text);
+        }
+
+{% if user.is_authenticated %}
+        $('#insert td').dblclick(function(e)	{
+            //ловим элемент, по которому кликнули
+            var t = e.target || e.srcElement;
+            //ловим элемент, куда передать значение
+            var target = t.parentElement;
+            $(target).attr('target', 'target');
+            $('#id').val($(target.cells[0]).attr('r'));
+            $('#id_group').val({{group.pk}});
+            for (var c=1; c<={{group.max_sem}}; c++) {
+                $('#id_nagruz-'+c).val($(target.cells[1+c]).attr('r'));
+                $('#forma_attestacii-'+c).val($(target.cells[1+c]).children(0).html());
+                $('#chasov-'+c).val($(target.cells[{{group.max_sem}}+7+c]).html());
+            }
+            $('#disc_index').val($("tr[target='target'] td[c='disc_index']").html());
+            $('#disciplina').val($("tr[target='target'] td[c='disciplina']").html());
+            $('#max_nagruzka').val($("tr[target='target'] td[c='max_nagruzka']").html());
+            $('#samostoyatelnaya_raboa').val($("tr[target='target'] td[c='samostoyatelnaya_raboa']").html());
+            $('#vsego_zanyatii').val($("tr[target='target'] td[c='vsego_zanyatii']").html());
+            $('#lekcii').val($("tr[target='target'] td[c='lekcii']").html());
+            $('#praktic').val($("tr[target='target'] td[c='praktic']").html());
+            $('#kurs_podgotovka').val($("tr[target='target'] td[c='kurs_podgotovka']").html());
+            $(target).removeAttr('target', 'target');
+            $('#modal-message').prop('checked', true);
+        });
+{% endif %}
+    });
+</script>
+{% endblock scripts %}
+
+{% block body %}
+<main class="">
+    <div class="container">
+        <h1 id="hhh">{{group.shortname}}</h1>
+        <div class="tabs">
+            <input name="tabs" id="tab1" type="radio">
+            <label title="Информация о группе" for="tab1">Информация о группе</label>
+
+            <input name="tabs" id="tab2" type="radio" checked="">
+            <label title="Список студентов" for="tab2">Список студентов</label>
+
+            <input name="tabs" id="tab3" type="radio">
+            <label title="Учебный план" for="tab3">Учебный план</label>
+
+            <input name="tabs" id="tab5" type="radio">
+            <label title="Выданные ведомости" for="tab5">Выданные ведомости</label>
+
+            {% if user.is_authenticated %}
+                <input name="tabs" id="tab4" type="radio">
+                <label title="Редактирование учебного плана" for="tab4">Редактирование учебного плана</label>
+            {% else %}
+                <input name="tabs" id="tab4" type="radio">
+                <label title="Учебный план" for="tab4">Учебный план</label>
+            {% endif %}
+
+
+            <section id="content-tab1">
+                <div class="shadow" style="margin: 0px;">
+                    <table border="1">
+                        <tr>
+                            <td>Куратор группы:</td>
+                            <td>{{group.kurator}}</td>
+                        </tr>
+                        <tr>
+                            <td>Код професии:</td>
+                            <td>{{group.detail.kod}}</td>
+                        </tr>
+                        <tr>
+                            <td>Наименование професии:</td>
+                            <td>{{group.detail.naimenovanie}}</td>
+                        </tr>
+                        <tr>
+                            <td>Дата запуска:</td>
+                            <td>{{group.data_zapuska}}</td>
+                        </tr>
+                        <tr>
+                            <td>Вместимость группы:</td>
+                            <td>{{group.vmestimost}} чел.</td>
+                        </tr>
+                        <tr>
+                            <td>Базовое образование:</td>
+                            <td>{{group.bazovoe_obraz}}</td>
+                        </tr>
+                        <tr>
+                            <td>Форма обучения:</td>
+                            <td>{{group.forma_obucheniya}}</td>
+                        </tr>
+                        <tr>
+                            <td>Срок обучения:</td>
+                            <td>{{group.srok_god}} г. {{group.srok_mes}} мес. [всего: {{group.max_sem}} сем.]</td>
+                        </tr>
+                        <tr>
+                            <td>Текущий сем.:</td>
+                            <td>{{group.tek_sem}} сем.</td>
+                        </tr>
+                    </table>
+                </div>
+            </section>
+            <section id="content-tab2">
+                <div class="shadow back-image" style="margin: 0px;">
+                    <div class="row">
+                        <div class="col-4" style="overflow: auto; float: left; margin-top: 15px;">
+                            <table>
+                                {% for stud in studs %}
+                                <tr>
+                                    <td>
+                                        <div onclick="ReadFile('/stud/{{stud.id_stud.id}}', 'trest');">
+                                            {% if stud.stud.is_dolgi|length > 0 %}
+                                            <img width="16" src="{% static 'icons/warning_yellow.png' %}"/>
+                                            {% else %}
+                                            <img width="16" src="{% static 'icons/ok_green.png' %}"/>
+                                            {% endif %}
+                                            {{stud.id_stud}}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                        <section class="col-8">
+                            <div id="trest" style="width: 100%;"></div>
+                        </section>
+                        <!--<div>Всего {{ studs|length }}</div>-->
+                    </div>
+                </div>
+            </section>
+            <section id="content-tab3">
+                    {% if group.uch_plan|length == 0 %}
+                <a href="/import/uch_plan/{{group.id}}"><div class="shadow text-center back-image"><h3>Импорт из файла</h3></div></a>
+                    {% else %}
+                <div class="shadow" style="margin: 0px;">
+                    <table id="filterTable1">
+                        <thead>
+                        <tr class="">
+                            <th>сем.</th>
+                            <th>Дисциплина</th>
+                            <th>Форма аттестации</th>
+                            <th>Макс нагрузка</th>
+                            <th>Всего уч часов</th>
+                            <th>Часов теории</th>
+                        </tr>
+                        </thead>
+                        <tfoot></tfoot>
+                        {% for disc in group.uch_plan %}
+                        <tr class="item">
+                            <td>{{disc.semestr}}</td>
+                            <td>{{disc.disc}}</td>
+                            <td>{{disc.forma_attestacii}}</td>
+                            <td>{{disc.max_nagruzka}}</td>
+                            <td>{{disc.vsego_zanyatii}}</td>
+                            <td>{{disc.chasov}}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                    <a href="/export/uch_plan/{{group.id}}"><div class="shadow text-center back-image">Експорт в файл</div></a>
+                    {% endif %}
+                <script type="text/javascript">
+                    $(document).ready(function() {
+                        $('table#filterTable1').columnFilters({alternateRowClassNames:['rowa','rowb']});
+                        $('table#filterTable1_2').columnFilters({alternateRowClassNames:['rowa','rowb']});
+                    });
+                </script>
+            </section>
+            <section id="content-tab4">
+                <div class="shadow" style="margin: 0px;">
+                    {% if group.uch_plan|length == 0 %}
+                    <div class="text-center" style="width: 100%; height: 100%;">
+                        <h3>Нет данных для отображения <a href="/import/uch_plan/{{group.id}}">Импортируйте данные</a></h3>
+                    </div>
+                    {% else %}
+                    <table id="insert">
+                        {% include html_table %}
+                    </table>
+                    {% endif %}
+                </div>
+            </section>
+            <section id="content-tab5">
+                <div class="shadow" style="margin: 0px;">
+                    {% if group.getVedomosty|length == 0 %}
+                    <div class="shadow text-center back-image"><h3>Ведомостей нет.</h3></div>
+                    {% else %}
+                    {% for item in group.getVedomosty %}
+                    <div class="shadow text-center back-image"><h3>{{item}}</h3></div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </section>
+        </div>
+    </div>
+</main>
+<div class="container_modal">
+    <input id="modal-message" type="checkbox">
+    <label class="modal-background" for="modal-message"></label>
+    <div class="modal-content">
+        <label class="modal-close" for="modal-message">&#10005;</label>
+        <div style="height: 500px; width: 100%;" class="text-center">
+            <form id="send_form" method="POST" action="/save_up/">
+                <input name="id" type="hidden" id="id" value=""/>
+                <input name="id_group" type="hidden" id="id_group" value=""/>
+                <fieldset style="width: 100%; margin: auto;">
+                    <legend>Информация о дисциплине</legend>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th rowspan="4">Индекс</th>
+                            <th rowspan="4">Полное наименование дисциплины</th>
+                        </tr>
+                        <tr>
+                            <th rowspan="3">Макс. наг.</th>
+                            <th rowspan="3">Сам. наг.</th>
+                            <th colspan="3">Обязательная нагрузка</th>
+                            <th rowspan="4">Курс. подг.</th>
+                        </tr>
+                        <tr>
+                            <th rowspan="2">Всего занятий</th>
+                            <th colspan="2">в том числе</th>
+                        </tr>
+                        <tr>
+                            <th>Лекций, уроков</th>
+                            <th>Лаб. и прак. занятий</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><input name="disc_index" type="text" id="disc_index" value=""
+                                       style="width: 100%; height: 100%;"/></td>
+                            <td><input name="disciplina" type="text" id="disciplina" value=""
+                                       style="width: 100%; height: 100%;"/></td>
+                            <td><input name="max_nagruzka" type="text" id="max_nagruzka" value=""
+                                       style="width: 100%; height: 100%;"/></td>
+                            <td><input name="samostoyatelnaya_raboa" type="text" id="samostoyatelnaya_raboa" value=""
+                                       style="width: 100%; height: 100%;"/></td>
+                            <td><input name="vsego_zanyatii" type="text" id="vsego_zanyatii" value=""
+                                       style="width: 100%; height: 100%;"/></td>
+                            <td><input name="lekcii" type="text" id="lekcii" value=""
+                                       style="width: 100%; height: 100%;"/></td>
+                            <td><input name="praktic" type="text" id="praktic" value=""
+                                       style="width: 100%; height: 100%;"/></td>
+                            <td><input name="kurs_podgotovka" type="text" id="kurs_podgotovka" value=""
+                                       style="width: 100%; height: 100%;"/></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </fieldset>
+                <div class="spacer-20"></div>
+                <div class="row justify-content-center text-center">
+                    <div class="col-6">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th colspan="{{group.max_sem}}">Семестровая нагрузка / Форма аттестации</th>
+                            </tr>
+                            <tr>
+                                {% for x in maxSem %}
+                                <th><input name="id_nagruz-{{x}}" type="hidden" id="id_nagruz-{{x}}" value=""/>{{x}} сем.</th>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                {% for x in maxSem %}
+                                <td><input name="chasov-{{x}}" type="text" id="chasov-{{x}}" value=""
+                                       style="width: 100%; height: 100%;"/></td>
+                                {% endfor %}
+                            </tr>
+                            <tr>
+                                {% for x in maxSem %}
+                                <td><input name="forma_attestacii-{{x}}" type="text" id="forma_attestacii-{{x}}" value=""
+                                       style="width: 100%; height: 100%;"/></td>
+                                {% endfor %}
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <div class="spacer-50"></div>
+                <button id="but_submit" class="btn btn-primary">Сохранить</button>
+                <div id="result_send_form" class="spacer-50"></div>
+            </form>
+        </div>
+        <!--<label class="modal-content-button" for="modal-message">OK</label>-->
+    </div> <!-- .modal-content -->
+</div>
+{% endblock body %}

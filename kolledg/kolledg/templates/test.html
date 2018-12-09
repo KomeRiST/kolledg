@@ -1,0 +1,305 @@
+{% if tip == 'stud' %}
+<!--<div class="text-center">-->
+    <!--<h2>Данные студента</h2>-->
+<!--</div>-->
+<div class="modal-body">
+    <div class="row">
+        <div class="col-3">
+            <div class="rows">
+                <h5>Инфа о студенте</h5>
+                <hr/>
+                {% for st in stud %}
+                <div>Фамилия</div>
+                <div>{{st.fam}}</div>
+                <div>Имя</div>
+                <div>{{st.name}}</div>
+                <div>Отчество</div>
+                <div>{{st.otch}}</div>
+                <div>Дата рождения</div>
+                <div>{{st.birsday}}</div>
+                <div>Адресс проживания</div>
+                <div>{{st.adress}}.</div>
+                <div>Наличие долгов</div>
+                <div>{{st.is_dolgi|length}} шт.</div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-5">
+            <h5>Список долгов студента (по приказу)</h5>
+            <hr/>
+            {% if stud.0.is_dolgi|length > 0 %}
+            <div style="max-height: 350px; overflow-x: auto;">
+        <table class="tftable" border="1">
+            <thead>
+            <tr style="height: 0px;">
+                <th>Приказ</th>
+                <th>Дисциплина</th>
+                <th>Семестр</th>
+                <th>Оценка</th>
+                <th>Дата сдачи</th>
+                {% if user.is_authenticated %}
+                <th>Действия</th>
+                {% endif %}
+            </tr>
+            </thead>
+            {% for dolg in stud.0.is_dolgi %}
+            <tr>
+                <td>{{dolg.prikaz}}</td>
+                <td>{{dolg.disc}}</td>
+                <td>{{dolg.id_disc_nagruz.semestr}} семестр ({{dolg.id_disc_nagruz.forma_attestacii}})</td>
+                <td>{{dolg.ocenka}}</td>
+                <td>{{dolg.data_sdachi}}</td>
+                {% if user.is_authenticated %}
+                <td><a href="/begunok_get/{{dolg.pk}}">Выдать</a> <a href="/begunok_set/{{dolg.pk}}">Принять</a></td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+            {% else %}
+            <h3>Долгов по приказу нет</h3>
+            {% endif %}
+        </div>
+        <div class="col-4">
+            <h5>Успеваемость</h5>
+            <hr/>
+
+        </div>
+    </div>
+</div>
+<!--<div class="modal-footer">-->
+<!--</div>-->
+{% endif %}
+
+{% if user.is_authenticated %}
+{% if tip == 'zachislenie' %}
+<div class="thiscontent">
+    <div class="thiscontent-header">
+        <h1>Движение контингента/зачисление</h1>
+    </div>
+    <div class="thiscontent-body">
+        <div class="thiscontent-left  back-image">
+            <div class="spacer-20"></div>
+            <div class="thiscontent-left-item-new">
+                <a href="/prikaz_new/" class="btn btn-primary">Добавить приказ</a>
+            </div>
+            <div class="spacer-20"></div>
+            {% for dk in data %}
+            <div onclick="ReadFile('/prik/{{tip}}_/{{dk.id_prik__id}}/', 'trest-body');" class="thiscontent-left-item">
+                <div>Приказ №{{dk.id_prik__nomer}} от {{dk.id_prik__datap}}</div>
+                <div>Группа: {{dk.id_group__shortname}}</div>
+            </div>
+            {% endfor %}
+        </div>
+        <div id="trest-body" class=" back-image"></div>
+    </div>
+
+</div>
+{% endif %}
+
+{% if tip == 'perevod' %}
+<div class="thiscontent">
+    <div class="thiscontent-header">
+        <h1>Движение контингента/перевод</h1>
+    </div>
+    <div class="thiscontent-body">
+        <div class="thiscontent-left  back-image">
+            <div class="spacer-20"></div>
+            <div class="thiscontent-left-item-new">
+                <a href="/prikaz_new_perevod/" class="btn btn-primary">Добавить приказ</a>
+            </div>
+            <div class="spacer-20"></div>
+            {% for dk in data %}
+            <div onclick="ReadFile('/prik/{{tip}}_/{{dk.id_prik__id}}/', 'trest-body');" class="thiscontent-left-item">
+                Приказ №{{dk.id_prik__nomer}} от {{dk.id_prik__datap}}
+            </div>
+            {% endfor %}
+        </div>
+        <div id="trest-body" class=" back-image"></div>
+    </div>
+
+</div>
+{% endif %}
+
+{% if tip == 'otchislenie' %}
+<div class="thiscontent">
+    <div class="thiscontent-header">
+        <h1>Движение контингента/отчисление</h1>
+    </div>
+    <div class="thiscontent-body">
+        <div class="thiscontent-left  back-image">
+            <div class="spacer-20"></div>
+            <div class="thiscontent-left-item-new">
+                <a href="/prikaz_new_otchis/" class="btn btn-primary">Добавить приказ</a>
+            </div>
+            <div class="spacer-20"></div>
+            {% for dk in data %}
+            <div onclick="ReadFile('/prik/{{tip}}_/{{dk.id_prik__id}}/', 'trest-body');" class="thiscontent-left-item">
+                Приказ №{{dk.id_prik__nomer}} от {{dk.id_prik__datap}}<br>
+                Группа: {{dk.id_group__shortname}} | записей {{dk.id_group__sum}} шт.
+            </div>
+            {% endfor %}
+        </div>
+        <div id="trest-body"></div>
+    </div>
+
+</div>
+{% endif %}
+
+
+{% if tip == 'zachislenie_' %}
+<table>
+    <tr>
+        <th>Группа</th>
+        <th>Студент</th>
+    </tr>
+    {% for dk in data %}
+    <tr>
+        <td><a href="/group/{{dk.id_group.id}}/">{{dk.id_group.shortname}}</a></td>
+        <td><a href="#">{{dk.id_stud}}</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+{% if tip == 'perevod_' %}
+<table>
+    <tr>
+        <th>Студент</th>
+        <th>Откуда и куда переведён</th>
+    </tr>
+    {% for dk in data %}
+    <tr>
+        <td><a href="#">{{dk.id_stud}}</a></td>
+        <td>Перевод из группы <a href="#">{{dk.id_group_from.shortname}}</a> в группу <a href="#">{{dk.id_group_in.shortname}}</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+{% if tip == 'otchislenie_' %}
+{% for dk in data %}
+<div class="thiscontent-left-item">
+    <a href="#">
+        <p>Приказ №{{dk.id_prik__nomer}} от {{dk.id_prik__datap}}<br>
+            Группа: {{dk.id_group__shortname}} | записей {{dk.id_group__sum}} шт.</p>
+    </a>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if tip == 'studs_ved' %}
+<div style="margin: 5%;">
+    <h3>Преподаватели</h3>
+    <hr/>
+    <table>
+        <thead>
+        <tr>
+            <th>Аттестующий</th>
+            <th>Член комиссии</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Аттестующий</td>
+            <td>Член комиссии</td>
+        </tr>
+        <tr>
+            <td>Аттестующий</td>
+            <td>Член комиссии</td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="spacer-50"></div>
+    <h3>Студенты</h3>
+    <hr/>
+    <table>
+        <thead>
+        <tr>
+            <th>№</th>
+            <th>Студент</th>
+            <th>Оценка</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for vst in studs %}
+        <tr>
+            <td>{{forloop.counter}}</td>
+            <td>{{vst.id_stud}}</td>
+            <td>{{vst.ocenka}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% if tip == 'ved_detail' %}
+<div class="row">
+    <div class="col-4">
+        <div class="rows">
+            <h5>Инфа о ведомости</h5>
+            <hr/>
+            <div>Номер в журнале</div>
+            <div>{{ved.nomer}}</div>
+            <div>Дата аттестации</div>
+            <div>{{ved.data_zacheta}}</div>
+            <div>Дата возврата</div>
+            <div>{{ved.data_vozvrata}}</div>
+        </div>
+        <hr/>
+        <div class="rows">
+            <h5>Преподаватели</h5>
+            {% for ak in attkom %}
+            {% if ak.kod == 1 %}
+            <div>Аттестующие преподаватели:</div>
+            <div>{{ak.id_prep}}</div>
+            {% elif ak.kod == 2 %}
+            <div>Члены комиссии:</div>
+            <div>{{ak.id_prep}}</div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <hr/>
+    </div>
+    <div class="col-5">
+        <h5>Студенты</h5>
+        <hr/>
+        <table>
+            <thead>
+            <tr>
+                <th>№</th>
+                <th>Студент</th>
+                <th>Оценка</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for vst in studs %}
+            <tr class="{% if vst.ocenka == 5 %}back-green{% elif vst.ocenka == 4 %}back-yellow{% elif vst.ocenka == 3 %}back-red{% else %}{% endif %}">
+                <td>{{forloop.counter}}</td>
+                <td>{{vst.id_stud}}</td>
+                <td>{{vst.ocenka}}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="col-3">
+        <h5>Успеваемость</h5>
+        <hr/>
+        <div>Относительная</div>
+        <div class="progres-bar">
+            <div class="progres-bar-value" style="width: {{otnosit}}%">{{otnosit}}%</div>
+        </div>
+        <div class="spacer-50"></div>
+        <div>Качественная</div>
+        <div class="progres-bar">
+            <div class="progres-bar-value" style="width: {{kach}}%">{{kach}}%</div>
+        </div>
+        <hr/>
+    </div>
+</div>
+{% endif %}
+
+{% endif %}

@@ -1,0 +1,65 @@
+{% extends "kolledg/base.html" %}
+{% load staticfiles %}
+{% load bootstrap_tags %}
+{% block title%}Повторная{% endblock title%}
+
+{% block styles %}
+<style>
+input {
+    height: 100%;
+    width: 100%;
+    border: none;
+}
+</style>
+{% endblock styles %}
+
+{% block body %}
+<div>
+    <form action="" method="POST">
+        <input name="form-TOTAL_FORMS" id="id_TOTAL_FORMS" type="hidden" value="{{col_items}}">
+        {{ todo_item_formset.management_form }}
+        <div class="col-4 section shadow text-center back-image" style="margin: auto;">
+            <fieldset style="width: 350px; margin: auto;">
+                <legend>Номер и дата приказа</legend>
+                {{todo_list_form|as_bootstrap}}
+            </fieldset>
+        </div>
+        <h2>Список должников</h2>
+        <div class="">
+            <table>
+                <tr>
+                    <th>Группа</th>
+                    <th>Дисциплина</th>
+                    <th>Студент</th>
+                    <th>Семестр</th>
+                    <th>Форма аттестации</th>
+                    <th>Препод</th>
+                    <th>Удалить?</th>
+                </tr>
+                {% for form in prik_body %}
+                <tr class="item">
+                    <input name="form-{{forloop.counter0}}-Group" id="id_form-{{forloop.counter0}}-Group" type="hidden" value="{{form.id_group.value}}">
+                    <input name="form-{{forloop.counter0}}-Stud" id="id_form-{{forloop.counter0}}-Stud" type="hidden" value="{{form.id_stud.value}}">
+                    <input name="form-{{forloop.counter0}}-Nagruzka" id="id_form-{{forloop.counter0}}-Nagruzka" type="hidden" value="{{form.id_disc.value}}">
+                    <input name="form-{{forloop.counter0}}-id_disc_prik_beg" id="id_form-{{forloop.counter0}}-id_disc_prik_beg" type="hidden" value="{{form.id_disc_prik_beg.value}}">
+                    <!--<input name="form-{{forloop.counter0}}-id_prep_prik_beg" id="id_form-{{forloop.counter0}}-id_prep_prik_beg" type="hidden" value="{{form.id_prep_prik_beg.value}}">-->
+                    <td>{{form.shortname.value}}</td>
+                    <td>{{form.disc.value}}</td>
+                    <td>{{form.stud_fio.value}}</td>
+                    <td>{{form.semestr.value}}</td>
+                    <td>{{form.forma_attestacii.value}}</td>
+                    <td>{{form.id_prep}}</td>
+                    {% if prik_body.can_delete %}
+                        <td>{{ form.DELETE }}</td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="spacer-20"></div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary text-center">Сохранить</button>
+        </div>
+    </form>
+</div>
+{% endblock body %}

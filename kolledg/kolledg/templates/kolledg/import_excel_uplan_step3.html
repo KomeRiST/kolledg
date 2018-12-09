@@ -1,0 +1,143 @@
+{% extends "kolledg/base.html" %}
+{% load staticfiles %}
+{% load bootstrap_tags %}
+{% block title %}Импорт{% endblock title %}
+{% block body %}
+<!-- Список учебных групп -->
+<section>
+    <div class="row text-center justify-content-center">
+        <h1>Импорт учебного плана для группы<br/>"{{group}}"</h1>
+    </div>
+    <div class="shadow back-image row justify-content-center">
+        <div class="col-12 text-center">
+            <h4>Вы выбрали Excel файл: "{{file_name}}" и лист: "{{sh_name}}"</h4>
+            <form method="post">
+                <input name="form-TOTAL_FORMS" id="id_form-TOTAL_FORMS" type="hidden" value="{{predmety|length}}">
+                <input name="form-INITIAL_FORMS" id="id_form-INITIAL_FORMS" type="hidden" value="0">
+                <input name="form-MIN_NUM_FORMS" id="id_form-MIN_NUM_FORMS" type="hidden" value="0">
+                <input name="form-MAX_NUM_FORMS" id="id_form-MAX_NUM_FORMS" type="hidden" value="{{predmety|length}}">
+                <table id="insert">
+                    {% include html_table %}
+                    <tbody>
+                    {% for pred in predmety %}
+                    <tr class="item">
+                        {% for disc in pred %}
+                        {% if forloop.counter0 == 1 %}
+                        <td style="text-align: left; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><input name="form-{{forloop.parentloop.counter0}}-{{forloop.counter0}}" id="id_form-{{forloop.parentloop.counter0}}-{{forloop.counter0}}" type="hidden" value="{{disc}}" />{{disc}}</td>
+                        {% else %}
+                        <td style="text-align: center;"><input name="form-{{forloop.parentloop.counter0}}-{{forloop.counter0}}" id="id_form-{{forloop.parentloop.counter0}}-{{forloop.counter0}}" type="hidden" value="{{disc}}" />{{disc}}</td>
+                        {% endif %}
+                        {% endfor %}
+                        <td>
+                            <p style="text-align: center">
+                                <a class="delete" href="#">
+                                    <img height="16" src="{% static 'icons/minus_red.png' %}"/>
+                                </a>
+                            </p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="spacer-50"></div>
+                <button id="save">Сохранить</button>
+            </form>
+            <script type="text/javascript">
+$(document).ready(function(){
+
+    function updateElementIndex(el, prefix, ndx) {
+        var id_regex = new RegExp('(' + prefix + '-\\d+-)');
+        var replacement = prefix + '-' + ndx + '-';
+        if ($(el).attr("for"))
+            $(el).attr("for", $(el).attr("for").replace(id_regex, replacement));
+        if (el.id)
+            el.id = el.id.replace(id_regex, replacement);
+        if (el.name)
+            el.name = el.name.replace(id_regex, replacement);
+        e = $(el).closest('.item').children(1);
+        $(e).eq(0).html(ndx+1);
+    }
+
+    function deleteForm(btn, prefix) {
+        var formCount = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val());
+        if (formCount > 1) {
+            // Delete the item/form
+            $(btn).parents('.item').remove();
+            var forms = $('.item'); // Get all the forms
+            // Update the total number of forms (1 less than before)
+            $('#id_' + prefix + '-TOTAL_FORMS').val(forms.length);
+            var i = 0;
+            // Go through the forms and set their indices, names and IDs
+            for (formCount = forms.length; i < formCount; i++) {
+                $(forms.get(i)).children().children().each(function () {
+                    if ($(this).attr('type') == 'text')
+                        updateElementIndex(this, prefix, i);
+                });
+            }
+        } // End if
+        else {
+            alert("You have to enter at least one todo item!");
+        }
+        return false;
+    }
+
+    function addForm(btn, prefix) {
+        var formCount = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val()); // Количество строк
+        // You can only submit a maximum of 25 todo items
+        if (formCount < 25) {
+            // Clone a form (without event handlers) from the first form
+            var row = $(".item:first").clone(false).get(0);
+            // Insert it after the last form
+            $(row).removeAttr('id').insertAfter(".item:last");
+            $(".item:last > td:first").html(formCount + 1)
+
+            // Remove the bits we don't want in the new row/form
+            // e.g. error messages
+            $(".errorlist", row).remove();
+            $(row).children().removeClass("error");
+
+            // Relabel or rename all the relevant bits
+            $(row).children().children().each(function () {
+                updateElementIndex(this, prefix, formCount);
+                $(this).val("");
+            });
+
+            // Add an event handler for the delete item/form link
+            $(row).find(".delete").click(function () {
+                return deleteForm(this, prefix);
+            });
+            // Update the total form count
+            $("#id_" + prefix + "-TOTAL_FORMS").val(formCount + 1);
+        } // End if
+        else {
+            alert("Sorry, you can only enter a maximum of ten items.");
+        }
+        return false;
+    }
+
+    function SaveForm() {
+        var formCount = parseInt($('#id_' + prefix + '-TOTAL_FORMS').val()); // Количество строк
+        var items = $('#insert .item');
+        console(items);
+    }
+
+    // Register the click event handlers
+    $("#add").click(function () {
+        return addForm(this, "form");
+    });
+
+    $(".delete").click(function () {
+        return deleteForm(this, "form");
+    });
+
+    $("#save").click(function () {
+        return SaveForm();
+    });
+
+});
+            </script>
+        </div>
+    </div>
+    <div class="spacer-50"></div>
+</section>
+{% endblock body %}

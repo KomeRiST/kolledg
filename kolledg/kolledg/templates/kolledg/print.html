@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Печать</title>
+</head>
+<body>
+    {% if tip == 'group' %}
+        <table class="tftable" border="1">
+            <tr><th>Группа</th><th>Полное наименование группы</th><th>Дата запуска</th><th>Срок обучения</th><th>Кол-во долгов</th></tr>
+                {% for group in data %}
+                    <tr>
+                        <td>{{group.shortname}}</td>
+                        <td>{{group.detail.naimenovanie}}</td>
+                        <td>{{group.data_zapuska}}</td>
+                        <td>{{group.srok_god}} г. {{group.srok_mes}} м. (тек. сем. {{group.tek_sem}})</td>
+                        <td>{{group.col_dolgov}}</td>
+                    </tr>
+                {% endfor %}
+        </table>
+    {% else %}
+    {% if tip == 'list_dolgnikov' %}
+        <table class="tftable" border="1">
+            <tr><th>Приказ</th><th>Группа</th><th>Студент</th><th>Дисциплина</th><th>Аттестующий препод</th><th>Семестр</th><th>Форма аттестации</th></tr>
+                {% for dolg in data %}
+                    <tr>
+                        <td>№ {{dolg.nomer}} от {{dolg.datap}}</td>
+                        <td>{{dolg.id_group}}</td>
+                        <td>{{dolg.id_stud}}</td>
+                        <td>{{dolg.disc_index}} {{dolg.disciplina}}</td>
+                        <td>
+                                <select>
+                            {% for prep in dop_date %}
+                                    <option {% if prep.id == dolg.id_prep %}selected{% endif %} value="{{prep.id}}">{{prep}}</option>
+                            {% endfor %}
+                                </select>
+                        </td>
+                        <td>{{dolg.semestr}}</td>
+                        <td>{{dolg.forma_attestacii}}</td>
+                    </tr>
+                {% endfor %}
+        </table>
+    {% endif %}
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,31 @@
+{% extends "kolledg/base.html" %}
+{% load staticfiles %}
+{% load bootstrap_tags %}
+{% block title %}Авторизация{% endblock title %}
+{% block body %}
+<h1>Вход на сайт</h1>
+<div class="row justify-content-center ">
+    <div class="col-4  back-image text-center">
+        {% if form.errors %}
+            <p>Введённые Вами логин или пароль не верны! Попробуйте ещё раз.</p>
+            {% endif %}
+
+            {% if next %}
+                {% if user.is_authenticated %}
+                    <p>У вашей учетной записи нет доступа к этой странице. Пожалуйста, войдите с учетной записью, которая имеет доступ.</p>
+                {% else %}
+                    <p>Пожалуйста, войдите, чтобы увидеть эту страницу.</p>
+            {% endif %}
+        {% endif %}
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            {{ form|as_bootstrap }}
+            <div>
+                <button type="submit" class="btn btn-primary">Войти</button>
+                <input type="hidden" name="next" value="{{ next }}"/>
+            </div>
+        </form>
+        <p><a href="{% url 'password_reset' %}">Забыли пароль?</a></p>
+    </div>
+</div>
+{% endblock body %}
